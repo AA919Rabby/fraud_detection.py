@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://frauduser:fraudpass@db:5432/frauddb
+    depends_on:
+      - db
+    volumes:
+      - ./models:/app/models
+
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=frauduser
+      - POSTGRES_PASSWORD=fraudpass
+      - POSTGRES_DB=frauddb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

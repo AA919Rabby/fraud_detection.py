@@ -1,0 +1,12 @@
+{
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1_score": 1.0,
+  "auroc": 1.0,
+  "confusion_matrix": {
+    "true_negative": 1960,
+    "false_positive": 0,
+    "false_negative": 0,
+    "true_positive": 40
+  }
+}
