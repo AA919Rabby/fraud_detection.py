@@ -5,7 +5,7 @@ import joblib
 import pandas as pd
 
 from src.database import engine, get_db, Base
-from src.model_db import TransactionLog
+from src.models_db import TransactionLog
 
 Base.metadata.create_all(bind=engine)
 
