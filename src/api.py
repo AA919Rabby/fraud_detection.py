@@ -3,13 +3,22 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 import joblib
 import pandas as pd
-
+from fastapi.middleware.cors import CORSMiddleware
 from src.database import engine, get_db, Base
 from src.models_db import TransactionLog
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Fraud Detection API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # allows requests from any website (fine for a portfolio project)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 model = joblib.load("models/fraud_model.pkl")
 
 class Transaction(BaseModel):
