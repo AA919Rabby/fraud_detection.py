@@ -3,12 +3,13 @@ import 'package:http/http.dart' as http;
 
 class FraudService {
   final String baseUrl;
+  static const String _apiKey = "fd_9k3m2Xp7qL8vR4tN";
 
-  FraudService({required this.baseUrl, required this.apiKey});
+  FraudService({required this.baseUrl});
 
   Map<String, String> get _headers => {
         "Content-Type": "application/json",
-        "x-api-key": fd_9k3m2Xp7qL8vR4tN,
+        "x-api-key": _apiKey,
       };
 
   Future<Map<String, dynamic>> health() async {

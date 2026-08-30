@@ -13,13 +13,11 @@ class _HomeScreenState extends State<HomeScreen> {
   int selectedTab = 0;
   final baseUrlController =
       TextEditingController(text: "https://fraud-detection-py.onrender.com");
-  final apiKeyController = TextEditingController();
 
-  final tabs = const ["Health", "Check", "History", "Stats", "Delete"];
+  final tabs = const ["Health", "Check", "History", "Stats"];
 
   FraudService get _service => FraudService(
         baseUrl: baseUrlController.text.trim(),
-        apiKey: apiKeyController.text.trim(),
       );
 
   InputDecoration _fieldDecoration(String label) => InputDecoration(
@@ -78,21 +76,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 24),
                     GlassCard(
-                      child: Column(
-                        children: [
-                          TextField(
-                            controller: baseUrlController,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: _fieldDecoration("API base URL"),
-                          ),
-                          const SizedBox(height: 14),
-                          TextField(
-                            controller: apiKeyController,
-                            obscureText: true,
-                            style: const TextStyle(color: Colors.white),
-                            decoration: _fieldDecoration("x-api-key"),
-                          ),
-                        ],
+                      child: TextField(
+                        controller: baseUrlController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: _fieldDecoration("API base URL"),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -132,11 +119,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: IndexedStack(
                         index: selectedTab,
                         children: [
-                          _HealthTab(getService: () => _service, fieldDecoration: _fieldDecoration),
+                          _HealthTab(getService: () => _service),
                           _CheckTab(getService: () => _service, fieldDecoration: _fieldDecoration),
                           _HistoryTab(getService: () => _service),
                           _StatsTab(getService: () => _service),
-                          _DeleteTab(getService: () => _service, fieldDecoration: _fieldDecoration),
                         ],
                       ),
                     ),
@@ -184,8 +170,7 @@ Widget _resultBox(String? result, String? error) {
 
 class _HealthTab extends StatefulWidget {
   final FraudService Function() getService;
-  final InputDecoration Function(String) fieldDecoration;
-  const _HealthTab({required this.getService, required this.fieldDecoration});
+  const _HealthTab({required this.getService});
   @override
   State<_HealthTab> createState() => _HealthTabState();
 }
@@ -343,67 +328,6 @@ class _StatsTabState extends State<_StatsTab> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         GradientButton(label: "GET /stats", onPressed: loading ? null : _run, loading: loading),
-        _resultBox(result, error),
-      ],
-    );
-  }
-}
-
-class _DeleteTab extends StatefulWidget {
-  final FraudService Function() getService;
-  final InputDecoration Function(String) fieldDecoration;
-  const _DeleteTab({required this.getService, required this.fieldDecoration});
-  @override
-  State<_DeleteTab> createState() => _DeleteTabState();
-}
-
-class _DeleteTabState extends State<_DeleteTab> {
-  final idController = TextEditingController(text: "1");
-  String? result;
-  String? error;
-  bool loading = false;
-
-  Future<void> _deleteOne() async {
-    setState(() { loading = true; error = null; result = null; });
-    try {
-      final res = await widget.getService().deleteTransaction(int.parse(idController.text));
-      setState(() => result = res.toString());
-    } catch (e) {
-      setState(() => error = e.toString());
-    }
-    setState(() => loading = false);
-  }
-
-  Future<void> _clearAll() async {
-    setState(() { loading = true; error = null; result = null; });
-    try {
-      final res = await widget.getService().clearAll();
-      setState(() => result = res.toString());
-    } catch (e) {
-      setState(() => error = e.toString());
-    }
-    setState(() => loading = false);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextField(
-          controller: idController,
-          style: const TextStyle(color: Colors.white),
-          decoration: widget.fieldDecoration("transaction_id"),
-        ),
-        const SizedBox(height: 12),
-        GradientButton(label: "DELETE /transaction/{id}", onPressed: loading ? null : _deleteOne, loading: loading),
-        const SizedBox(height: 12),
-        GradientButton(
-          label: "DELETE /transactions/clear-all",
-          onPressed: loading ? null : _clearAll,
-          loading: loading,
-          colors: const [Color(0xFFFF5F6D), Color(0xFFFFC371)],
-        ),
         _resultBox(result, error),
       ],
     );
