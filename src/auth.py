@@ -1,6 +1,6 @@
 import os
+import bcrypt  # <-- EDIT: We now use bcrypt directly instead of passlib
 from datetime import datetime, timedelta
-from passlib.context import CryptContext
 from jose import jwt, JWTError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
@@ -13,16 +13,23 @@ JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-this-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 hours
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# EDIT: Removed the pwd_context = CryptContext(...) line
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
 
+# EDIT: Rewrote to use standard bcrypt instead of passlib
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    # bcrypt needs bytes, so we encode the string to utf-8 first
+    salt = bcrypt.gensalt()
+    hashed_bytes = bcrypt.hashpw(password.encode('utf-8'), salt)
+    return hashed_bytes.decode('utf-8')  # Return as string for the database
 
 
+# EDIT: Rewrote to use standard bcrypt instead of passlib
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    # Check the plain password against the stored hash
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 
 def create_access_token(data: dict) -> str:
