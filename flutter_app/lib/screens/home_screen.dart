@@ -71,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 6),
                     const Text(
-                      "Live testing UI for your deployed API",
+                      "Live testing UI deployed API",
                       style: TextStyle(color: Colors.white54, fontSize: 14),
                     ),
                     const SizedBox(height: 24),
