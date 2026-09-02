@@ -1,24 +1,31 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../services/fraud_service.dart';
 import '../widgets/gradient_button.dart';
 import '../widgets/glass_card.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String token;
+  final String baseUrl;
+  final VoidCallback onLogout;
+
+  const HomeScreen({
+    super.key,
+    required this.token,
+    required this.baseUrl,
+    required this.onLogout,
+  });
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   int selectedTab = 0;
-  final baseUrlController =
-      TextEditingController(text: "https://fraud-detection-py.onrender.com");
-
   final tabs = const ["Health", "Check", "History", "Stats"];
 
   FraudService get _service => FraudService(
-        baseUrl: baseUrlController.text.trim(),
+        baseUrl: widget.baseUrl,
+        token: widget.token,
       );
 
   InputDecoration _fieldDecoration(String label) => InputDecoration(
@@ -57,31 +64,31 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ShaderMask(
-                      shaderCallback: (bounds) => const LinearGradient(
-                        colors: [Color(0xFF7F5AF0), Color(0xFF2CB1FF)],
-                      ).createShader(bounds),
-                      child: const Text(
-                        "Fraud detection console",
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: ShaderMask(
+                            shaderCallback: (bounds) => const LinearGradient(
+                              colors: [Color(0xFF7F5AF0), Color(0xFF2CB1FF)],
+                            ).createShader(bounds),
+                            child: const Text(
+                              "Fraud detection console",
+                              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: Colors.white),
+                            ),
+                          ),
                         ),
-                      ),
+                        TextButton.icon(
+                          onPressed: widget.onLogout,
+                          icon: const Icon(Icons.logout, size: 16, color: Colors.white54),
+                          label: const Text("Log out", style: TextStyle(color: Colors.white54)),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 6),
                     const Text(
-                      "Live testing UI deployed API",
+                      "Logged in · live testing UI for your deployed API",
                       style: TextStyle(color: Colors.white54, fontSize: 14),
-                    ),
-                    const SizedBox(height: 24),
-                    GlassCard(
-                      child: TextField(
-                        controller: baseUrlController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: _fieldDecoration("API base URL"),
-                      ),
                     ),
                     const SizedBox(height: 20),
                     Row(
@@ -96,8 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12),
                                 gradient: active
-                                    ? const LinearGradient(
-                                        colors: [Color(0xFF7F5AF0), Color(0xFF2CB1FF)])
+                                    ? const LinearGradient(colors: [Color(0xFF7F5AF0), Color(0xFF2CB1FF)])
                                     : null,
                                 color: active ? null : Colors.white.withOpacity(0.05),
                               ),
@@ -218,7 +224,6 @@ Widget _statChip(String label, String value, {Color? color}) {
   );
 }
 
-// A small labeled key/value row, used inside detail cards (Postman-like field list)
 Widget _kv(String label, String value, {Color? valueColor}) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 5),
@@ -227,8 +232,7 @@ Widget _kv(String label, String value, {Color? valueColor}) {
       children: [
         SizedBox(
           width: 150,
-          child: Text(label,
-              style: const TextStyle(color: Colors.white38, fontSize: 12)),
+          child: Text(label, style: const TextStyle(color: Colors.white38, fontSize: 12)),
         ),
         Expanded(
           child: Text(

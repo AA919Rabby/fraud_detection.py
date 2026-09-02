@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/auth_screen.dart';
 import 'screens/home_screen.dart';
 
 void main() {
@@ -14,7 +15,38 @@ class FraudApp extends StatelessWidget {
       title: 'Fraud detection console',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark(useMaterial3: true),
-      home: const HomeScreen(),
+      home: const AuthGate(),
+    );
+  }
+}
+
+class AuthGate extends StatefulWidget {
+  const AuthGate({super.key});
+  @override
+  State<AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends State<AuthGate> {
+  String? token;
+  String? baseUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    if (token == null || baseUrl == null) {
+      return AuthScreen(
+        onLoggedIn: (t, url) => setState(() {
+          token = t;
+          baseUrl = url;
+        }),
+      );
+    }
+    return HomeScreen(
+      token: token!,
+      baseUrl: baseUrl!,
+      onLogout: () => setState(() {
+        token = null;
+        baseUrl = null;
+      }),
     );
   }
 }
