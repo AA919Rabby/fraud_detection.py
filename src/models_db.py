@@ -1,23 +1,18 @@
-from sqlalchemy import Column, Integer, Float, Boolean, String, DateTime
+from sqlalchemy import (
+    Column,
+    Integer,
+    Float,
+    Boolean,
+    String,
+    DateTime,
+    ForeignKey,
+)
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
 from src.database import Base
 
-class TransactionLog(Base):
-    __tablename__ = "transaction_logs"
 
-    id = Column(Integer, primary_key=True, index=True)
-    amount = Column(Float)
-    hour_of_day = Column(Float)
-    transactions_last_hour = Column(Integer)
-    is_new_device = Column(Integer)
-    account_age_days = Column(Float)
-    is_fraud = Column(Boolean)
-    fraud_probability = Column(Float)
-    risk_level = Column(String)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-
-# ### NEW: user accounts
 class User(Base):
     __tablename__ = "users"
 
@@ -26,8 +21,48 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
+    # One user -> many transaction logs
+    transaction_logs = relationship(
+        "TransactionLog",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
-# ### NEW: password reset codes
+
+class TransactionLog(Base):
+    __tablename__ = "transaction_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    # NEW: owner of this transaction
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=True,
+        index=True,
+    )
+
+    amount = Column(Float)
+    hour_of_day = Column(Float)
+    transactions_last_hour = Column(Integer)
+    is_new_device = Column(Integer)
+    account_age_days = Column(Float)
+
+    is_fraud = Column(Boolean)
+    fraud_probability = Column(Float)
+    risk_level = Column(String)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+
+    user = relationship(
+        "User",
+        back_populates="transaction_logs",
+    )
+
+
 class PasswordResetCode(Base):
     __tablename__ = "password_reset_codes"
 
